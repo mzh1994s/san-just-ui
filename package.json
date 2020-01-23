@@ -1,0 +1,29 @@
+{
+  "name": "san-retro-ui",
+  "version": "1.0.0",
+  "description": "一款基于san框架的UI框架，最低支持到IE8老版本浏览器，因此叫复古派UI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "merge-cpts": "gulp javascript"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mzh1994s/san-retro-ui.git"
+  },
+  "keywords": [
+    "ie8",
+    "ui"
+  ],
+  "author": "mzhong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mzh1994s/san-retro-ui/issues"
+  },
+  "homepage": "https://github.com/mzh1994s/san-retro-ui#readme",
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-uglify": "^3.0.2"
+  }
+}

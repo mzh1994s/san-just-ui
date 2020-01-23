@@ -1,0 +1,5 @@
+#文件
+package-lock.json
+#文件夹
+.idea
+node_modules
