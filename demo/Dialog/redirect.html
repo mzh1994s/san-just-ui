@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>对话框例子</title>
+    <script src="../san.min.js"></script>
+    <script src="../../dist/Dialog.js"></script>
+    <script src="../require.js"></script>
+</head>
+<body>
+<div id="app"></div>
+
+<script type="text/html" id="template">
+    <div>
+        <ui-dialog title="测试test"></ui-dialog>
+    </div>
+</script>
+
+<script type="text/javascript">
+    console.log(justUI.dialog(san));
+    var Demo = san.defineComponent({
+        template: document.getElementById('template').innerHTML,
+        components: {
+            'ui-dialog': justUI.dialog(san)
+        }
+    });
+    new Demo().attach(document.getElementById('app'));
+</script>
+</body>
+</html>

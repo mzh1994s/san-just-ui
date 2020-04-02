@@ -4,11 +4,7 @@ const concat = require('gulp-concat');
 // js压缩
 const uglify = require('gulp-uglify');
 
-function javascript() {
-    return src('./components/*/*.js')
-        .pipe(concat('index.js'))
-        .pipe(uglify())
-        .pipe(dest('./components/'));
+function _default() {
 }
 
-exports.javascript = series(javascript);
+exports.default = series(_default);

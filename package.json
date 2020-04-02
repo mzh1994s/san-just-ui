@@ -1,15 +1,14 @@
 {
-  "name": "san-retro-ui",
+  "name": "san-just-ui",
   "version": "1.0.0",
-  "description": "一款基于san框架的UI框架，最低支持到IE8老版本浏览器，因此叫复古派UI",
+  "description": "一款基于san框架的UI框架，最低支持到IE8老版本浏览器",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "merge-cpts": "gulp javascript"
+    "build": "node build/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mzh1994s/san-retro-ui.git"
+    "url": "git+https://github.com/mzh1994s/san-just-ui.git"
   },
   "keywords": [
     "ie8",
@@ -18,12 +17,16 @@
   "author": "mzhong",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/mzh1994s/san-retro-ui/issues"
+    "url": "https://github.com/mzh1994s/san-just-ui/issues"
   },
-  "homepage": "https://github.com/mzh1994s/san-retro-ui#readme",
+  "homepage": "https://github.com/mzh1994s/san-just-ui#readme",
   "devDependencies": {
-    "gulp": "^4.0.2",
-    "gulp-concat": "^2.6.1",
-    "gulp-uglify": "^3.0.2"
+    "clean-webpack-plugin": "^3.0.0",
+    "es3ify-loader": "^0.2.0",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "object-defineproperty-ie8": "^1.0.1"
   }
 }
