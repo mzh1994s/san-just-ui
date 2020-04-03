@@ -13,8 +13,7 @@ const utilsProcessor = require('./build-independent-utils-processor');
 const fs = require('fs');
 const jsTemplate = fs.readFileSync('build/build-out-js-template.js').toString(conf.encoding);
 
-
-function _buildComponent(name) {
+function _buildComponentJavascript(name) {
     let file = conf.in + '/' + name + '/' + name + '.js';
     if (fs.existsSync(file)) {
         let fileContent = fs.readFileSync(file).toString(conf.encoding);
@@ -33,6 +32,19 @@ function _buildComponent(name) {
         // 输出到目录
         fs.writeFileSync(conf.out + '/' + name + '.js', fileContent);
     }
+}
+
+function _buildComponentCss(name) {
+    let file = conf.in + '/' + name + '/' + name + '.css';
+    if (fs.existsSync(file)) {
+        let outFile = conf.out + '/' + name + '.css';
+        fs.writeFileSync(outFile, fs.readFileSync(file).toString(conf.encoding));
+    }
+}
+
+function _buildComponent(name) {
+    _buildComponentJavascript(name);
+    _buildComponentCss(name);
 }
 
 module.exports = function () {
