@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>对话框例子</title>
+    <script src="../require.js"></script>
+    <link href="../../dist/Dialog.css" rel="stylesheet"/>
+</head>
+<body>
+<div id="app"></div>
+
+<script type="text/html" id="template">
+    <div>
+        <button on-click="open">打开</button>
+        <ui-dialog title="测试test1" visible="{=visible=}"></ui-dialog>
+        <ui-dialog title="测试test2"></ui-dialog>
+    </div>
+</script>
+
+<script type="text/javascript">
+    require.config({
+        paths: {
+            san: '../san.min'
+        }
+    });
+    require(['san', '../../dist/Dialog'], function (san, Dialog) {
+        console.log(Dialog);
+        var Demo = san.defineComponent({
+            template: document.getElementById('template').innerHTML,
+            components: {
+                'ui-dialog': Dialog
+            },
+            open: function () {
+                this.data.set('visible', true);
+            }
+        });
+        new Demo().attach(document.getElementById('app'));
+    });
+</script>
+</body>
+</html>

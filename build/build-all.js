@@ -1,6 +1,6 @@
 /**
- * 打包成单个组件
- * 创建日期：2020/4/2
+ * 多个组件打包成一个文件
+ * 创建日期：2020/4/7
  * @author mzhong
  */
 
@@ -45,12 +45,12 @@ function _buildComponent(name) {
 }
 
 module.exports = function () {
+    console.log('打包为一个文件');
     // 读取组件目录
     let files = fs.readdirSync(conf.in);
     for (let file of files) {
         let stat = fs.statSync(conf.in + '/' + file);
         if (stat.isDirectory()) {
-            console.log('打包单个组件：' + file);
             _buildComponent(file);
         }
     }

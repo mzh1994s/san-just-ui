@@ -1,5 +1,11 @@
 <div class="ju-dialog" style="{{cStyle}}">
-    <div class="ju-dialog__header">{{title}}</div>
-    <div class="ju-dialog__body"></div>
-    <div class="ju-dialog__footer"></div>
+    <div class="ju-dialog__header">
+        <slot name="header">{{title}}<i on-click="onClose()">关闭</i></slot>
+    </div>
+    <div class="ju-dialog__body">
+        <slot></slot>
+    </div>
+    <div class="ju-dialog__footer">
+        <slot name="footer"></slot>
+    </div>
 </div>

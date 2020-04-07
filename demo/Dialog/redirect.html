@@ -13,16 +13,21 @@
 
 <script type="text/html" id="template">
     <div>
-        <ui-dialog title="测试test"></ui-dialog>
+        <button on-click="open">打开</button>
+        <ui-dialog title="测试test1" visible="{=visible=}"></ui-dialog>
+        <ui-dialog title="测试test2"></ui-dialog>
     </div>
 </script>
 
 <script type="text/javascript">
-    console.log(justUI.dialog(san));
+    console.log(JU.Dialog);
     var Demo = san.defineComponent({
         template: document.getElementById('template').innerHTML,
         components: {
-            'ui-dialog': justUI.dialog(san)
+            'ui-dialog': JU.Dialog
+        },
+        open: function () {
+            this.data.set('visible', true);
         }
     });
     new Demo().attach(document.getElementById('app'));

@@ -2,14 +2,7 @@
 
     // 组件定义区域
     function _component(san) {
-        /**
-		 * TODO
-		 * 创建日期：2020/1/23
-		 * @author mzhong
-		 */
-		return san.defineComponent({
-		    template: ''
-		});
+        //!__component_area__
     }
 
     // Export
@@ -19,6 +12,6 @@
         define(['san'], _component);
     } else {
         root.JU = root.JU || {};
-        root.JU.Radio = _component(root.san);
+        root.JU.component = _component(root.san);
     }
 })(this);
