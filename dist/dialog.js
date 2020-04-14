@@ -1,21 +1,27 @@
 (function (root) {
 
-    // 组件定义区域
-    function _component(san) {
-        var _r_utils_each = function (list, callback) {
+    // 组件资源引用区域
+    var _require_Dialog_Dialog_html = '<div class="ju-dialog" style="{{cStyle}}"><div class="ju-dialog__header"><slot name="header">{{title}}<i on-click="onClose()">关闭</i></slot></div><div class="ju-dialog__body"><slot></slot></div><div class="ju-dialog__footer"><slot name="footer"></slot></div></div>';
+	var _require_utils_js = {
+		each : function (list, callback) {
 	        var length = list.lenght;
 	        for (var i = 0; i < length; i++) {
 	            callback(i, list[i]);
 	        }
-	    };
-				
+	    }
+	};
+
+    // 组件定义区域
+    function _component(san) {
+        var utils = _require_utils_js;
+		
 		/**
 		 * 对话框组件
 		 * 创建日期：2020/1/23
 		 * @author mzhong
 		 */
 		return san.defineComponent({
-		    template: '<div class="ju-dialog" style="{{cStyle}}"><div class="ju-dialog__header"><slot name="header">{{title}}<i on-click="onClose()">关闭</i></slot></div><div class="ju-dialog__body"><slot></slot></div><div class="ju-dialog__footer"><slot name="footer"></slot></div></div>',
+		    template: _require_Dialog_Dialog_html,
 		    initData: function () {
 		        return {
 		            visible: false,
@@ -26,7 +32,7 @@
 		    created: function () {
 		        this.shadeEl = document.createElement('div');
 		        this.shadeEl.className = 'ju-dialog__shade';
-		        _r_utils_each([1, 2, 3], function (i, item) {
+		        utils.each([1, 2, 3], function (i, item) {
 		            console.log(i);
 		        })
 		    },
@@ -80,6 +86,6 @@
         define(['san'], _component);
     } else {
         root.JU = root.JU || {};
-        root.JU.Dialog = _component(root.san);
+        root.JU.Dialog =  _component(root.san);
     }
 })(this);

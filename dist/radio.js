@@ -1,5 +1,7 @@
 (function (root) {
 
+    // 组件资源引用区域
+    
     // 组件定义区域
     function _component(san) {
         /**
@@ -19,6 +21,6 @@
         define(['san'], _component);
     } else {
         root.JU = root.JU || {};
-        root.JU.Radio = _component(root.san);
+        root.JU.Radio =  _component(root.san);
     }
 })(this);

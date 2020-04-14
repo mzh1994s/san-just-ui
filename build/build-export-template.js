@@ -1,8 +1,10 @@
 (function (root) {
 
+    // 组件资源引用区域
+    //__hook_component_resources__
     // 组件定义区域
     function _component(san) {
-        //!__component_area__
+        //__hook_component_content__
     }
 
     // Export
