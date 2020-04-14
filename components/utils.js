@@ -5,7 +5,7 @@
  */
 module.exports = {
     each: function (list, callback) {
-        var length = list.lenght;
+        var length = list.length;
         for (var i = 0; i < length; i++) {
             callback(i, list[i]);
         }

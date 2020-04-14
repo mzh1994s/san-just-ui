@@ -10,8 +10,7 @@ const bArray = require('./build-array');
 const resourceScanner = require('./build-resources-scanner');
 // 文件操作
 const fs = require('fs');
-const bf = require('./build-file');
-const bu = require('./build-utils');
+const utils = require('./build-utils');
 const exportTemplate = fs.readFileSync('build/build-export-template.js').toString(conf.encoding);
 
 
@@ -25,8 +24,8 @@ function _mergeResources(resources, type) {
         if (item.resources) {
             let itemResources = _mergeResources(item.resources, type);
             for (let filepath in itemResources) {
-                _resources[filepath] = _resources[filename] || [];
-                _resources[filepath].push(itemResources[filename]);
+                _resources[filepath] = _resources[filepath] || [];
+                _resources[filepath].push(itemResources[filepath]);
             }
         }
     }
@@ -49,13 +48,13 @@ function _buildComponentJavascript(name) {
         if (textResources.length) {
             // 取第一个，生成变量
             let textResource = textResources[0];
-            let resourceVarName = '_require_' + bf.resolveResourceName(textResource.filepath);
+            let resourceVarName = '_require_' + utils.resolveResourceName(textResource.filepath);
             let resourceContent = textResource.content.replace(/'/g, "\'");
             content = content.replace(resourceHook,
                 'var ' + resourceVarName + " = '" + resourceContent + "';\r\n" + resourceHook);
             // 替换引用（require(xxx)替换为上面的变量引用）
             for (let textResource of textResources) {
-                content = content.replace(bu.buildRequirePattern(textResource.name), resourceVarName)
+                content = content.replace(utils.buildRequirePattern(textResource.name), resourceVarName)
             }
         }
     }
@@ -66,20 +65,23 @@ function _buildComponentJavascript(name) {
         if (scriptResources.length) {
             let scriptResource = scriptResources[0];
             let script = global.buildContext.evalCache[filename] || eval(scriptResource.content);
-            let resourceVarName = '_require_' + bf.resolveResourceName(scriptResource.filepath);
+            let resourceVarName = '_require_' + utils.resolveResourceName(scriptResource.filepath);
             let resourceContent = '{';
             let resourceScript = {};
             let methodWriteFlag = {};
             for (let scriptResource of scriptResources) {
-                for (let method of scriptResource.methods) {
-                    if (!methodWriteFlag[method]) {
-                        methodWriteFlag[method] = true;
-                        resourceScript[method] = script[method];
+                for (let member of scriptResource.members) {
+                    if (!methodWriteFlag[member]) {
+                        methodWriteFlag[member] = true;
+                        resourceScript[member] = script[member];
                         resourceContent += '\r\n\t\t';
-                        resourceContent += method + ' : ' + script[method].toString().replace(/\r\n/g, '\r\n\t');
+                        resourceContent += member + ' : ' + script[member].toString().replace(/\r\n/g, '\r\n\t') + ',';
                     }
                 }
-                content = content.replace(bu.buildRequirePattern(scriptResource.name), resourceVarName);
+                if (resourceContent.endsWith(',')) {
+                    resourceContent = resourceContent.substring(0, resourceContent.length - 1);
+                }
+                content = content.replace(utils.buildRequirePattern(scriptResource.name), resourceVarName);
             }
             resourceContent += '\r\n\t};';
             content = content.replace(resourceHook,

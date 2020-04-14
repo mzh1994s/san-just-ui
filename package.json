@@ -4,7 +4,8 @@
   "description": "一款基于san框架的UI框架，最低支持到IE8老版本浏览器",
   "main": "index.js",
   "scripts": {
-    "build": "node build/index.js"
+    "build": "node build/index.js",
+    "dev": "http-server"
   },
   "repository": {
     "type": "git",
@@ -21,12 +22,6 @@
   },
   "homepage": "https://github.com/mzh1994s/san-just-ui#readme",
   "devDependencies": {
-    "clean-webpack-plugin": "^3.0.0",
-    "es3ify-loader": "^0.2.0",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
-  },
-  "dependencies": {
-    "object-defineproperty-ie8": "^1.0.1"
+    "http-server": "^0.12.1"
   }
 }

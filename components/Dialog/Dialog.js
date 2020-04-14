@@ -1,5 +1,9 @@
 var utils = require('../utils');
-
+var animationFade = require('./Dialog-animation-fade');
+var animation = {
+    // 飞入
+    fade: animationFade
+};
 /**
  * 对话框组件
  * 创建日期：2020/1/23
@@ -11,15 +15,15 @@ module.exports = san.defineComponent({
         return {
             visible: false,
             width: '50%',
-            height: '400px'
+            height: '50%',
+            animation: 'fade'
         };
     },
     created: function () {
         this.shadeEl = document.createElement('div');
         this.shadeEl.className = 'ju-dialog__shade';
         utils.each([1, 2, 3], function (i, item) {
-            console.log(i);
-        })
+        });
     },
     attached: function () {
         this._attachedVisibleSetting();
@@ -30,14 +34,11 @@ module.exports = san.defineComponent({
     _attachedVisibleSetting: function () {
         document.body.appendChild(this.el);
         this.watch('visible', function (visible) {
+            var currentAnimation = animation[this.data.get('animation')];
             if (visible) {
-                // 添加遮罩
-                document.body.appendChild(this.shadeEl);
-                // 重新添加会将位置排在最后
-                document.body.appendChild(this.el);
+                currentAnimation.enter(this);
             } else {
-                // 删除遮罩
-                document.body.removeChild(this.shadeEl);
+                currentAnimation.leave(this);
             }
         });
     },
@@ -52,12 +53,10 @@ module.exports = san.defineComponent({
     },
     computed: {
         cStyle: function () {
-            var visible = this.data.get('visible');
+            var visible = this.data.get('asyncVisible');
             return {
                 width: this.data.get('width'),
-                height: this.data.get('height'),
-                // display: visible ? 'block' : 'none',
-                opacity: visible ? 1 : 0
+                height: this.data.get('height')
             }
         }
     }
