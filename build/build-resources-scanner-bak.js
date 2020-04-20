@@ -6,6 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const utils = require('./build-utils');
+const conf = require('./build-conf');
 const requirePattern = /(var\s+\S+\s+=\s+)?require\(["']+(\S+)['"]+\);?/g;
 
 let processors = {
@@ -58,7 +59,7 @@ let processors = {
                         } else {
                             let script = utils.eval(resource.filepath);
                             for (let member in script) {
-                                if (script.hasOwnProperty(member) && !memberDistinctMap[member]) {
+                                if (!memberDistinctMap[member]) {
                                     memberDistinctMap[member] = true;
                                     // 获取方法名称
                                     resource.members.push(member);

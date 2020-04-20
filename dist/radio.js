@@ -1,7 +1,4 @@
 (function (root) {
-
-    // 组件资源引用区域
-    
     // 组件定义区域
     function _component(san) {
         /**
@@ -9,9 +6,10 @@
 		 * 创建日期：2020/1/23
 		 * @author mzhong
 		 */
-		return san.defineComponent({
+		module.exports = san.defineComponent({
 		    template: ''
 		});
+		return Radio;
     }
 
     // Export
@@ -20,7 +18,7 @@
     } else if (typeof define === 'function' && define.amd) {
         define(['san'], _component);
     } else {
-        root.JU = root.JU || {};
-        root.JU.Radio =  _component(root.san);
+        root.justUI = root.justUI || {};
+        root.justUI.Radio =  _component(root.san);
     }
 })(this);

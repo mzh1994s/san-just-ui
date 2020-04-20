@@ -6,19 +6,13 @@
 
 // 配置
 const conf = require('./build-conf');
-const brScanner = require('./build-resources-scanner');
+const resourceScanner = require('./build-resources-scanner');
 // 文件操作
 const fs = require('fs');
 const utils = require('./build-utils');
 const exportTemplate = fs.readFileSync('build/build-export-template.js').toString(conf.encoding);
 
-/**
- * 合并资源文件，将子资源合并到父级
- * @param resources
- * @param type
- * @returns {{}}
- * @private
- */
+
 function _mergeResources(resources, type) {
     let _resourcesMap = {};
     for (let item of resources) {
@@ -42,24 +36,28 @@ function _mergeResources(resources, type) {
 }
 
 function _buildComponentJavascript(name) {
-    let data = brScanner(conf.in + '/' + name, name);
-    let content = data.content.replace(/\r\n/g, '\r\n\t\t');
-    // 构造返回
-    content = content + '\r\n\t\treturn ' + name + ';';
+    let data = resourceScanner(conf.in + '/' + name, name);
+    let content = data.content.replace(/module\.exports\s+=/, 'return')
+        .replace(/\r\n/g, '\r\n\t\t');
     // 组件定义区域
     content = exportTemplate.replace('//__hook_component_content__', content);
     // 组件资源引用表
     let textResourceMap = _mergeResources(data.resources, 'html');
     // 文本资源引用
+    let resourceHook = '//__hook_component_resources__';
     for (let filepath in textResourceMap) {// 遍历表
         let textResources = textResourceMap[filepath];
         // 一个文件可能有多个引用
         if (textResources.length) {
-            // 替换引用（require(xxx)
+            // 取第一个，生成变量
+            let textResource = textResources[0];
+            let resourceVarName = '_require_' + utils.resolveResourceName(textResource.filepath);
+            let resourceContent = textResource.content.replace(/'/g, "\'");
+            content = content.replace(resourceHook,
+                'var ' + resourceVarName + " = '" + resourceContent + "';\r\n" + resourceHook);
+            // 替换引用（require(xxx)替换为上面的变量引用）
             for (let textResource of textResources) {
-                let resourceContent = textResource.content.replace(/'/g, "\'");
-                resourceContent = "'" + resourceContent + "'";
-                content = content.replace(utils.buildRequirePattern(textResource.name), resourceContent);
+                content = content.replace(utils.buildRequirePattern(textResource.name), resourceVarName)
             }
         }
     }
@@ -68,15 +66,35 @@ function _buildComponentJavascript(name) {
     for (let filepath in scriptResourceMap) {
         let scriptResources = scriptResourceMap[filepath];
         if (scriptResources.length) {
-            // 替换引用（require(xxx)
+            let scriptResource = scriptResources[0];
+            let script = utils.eval(filepath);
+            let resourceVarName = '_require_' + utils.resolveResourceName(scriptResource.filepath);
+            let resourceContent = '{';
+            let resourceScript = {};
+            let methodWriteFlag = {};
             for (let scriptResource of scriptResources) {
-                let scriptContent = scriptResource.content.replace(/\r\n/g, '\r\n\t\t');
-                content = content.replace(utils.buildRequirePattern(scriptResource.name), scriptContent);
+                for (let member of scriptResource.members) {
+                    if (!methodWriteFlag[member]) {
+                        methodWriteFlag[member] = true;
+                        resourceScript[member] = script[member];
+                        resourceContent += '\r\n\t\t';
+                        resourceContent += member + ' : ' + script[member].toString().replace(/\r\n/g, '\r\n\t') + ',';
+                    }
+                }
+                if (resourceContent.endsWith(',')) {
+                    resourceContent = resourceContent.substring(0, resourceContent.length - 1);
+                }
+                content = content.replace(utils.buildRequirePattern(scriptResource.name), resourceVarName);
             }
+            resourceContent += '\r\n\t};';
+            content = content.replace(resourceHook,
+                '\tvar ' + resourceVarName + ' = ' + resourceContent + "\r\n" + resourceHook);
         }
     }
+    // 删除钩子
+    content = content.replace(resourceHook, '');
     // 替换组件名
-    content = content.replace(/root\.justUI\.component =/, 'root.justUI.' + name + ' = ');
+    content = content.replace(/root\.JU\.component =/, 'root.JU.' + name + ' = ');
     // 输出文件
     fs.writeFileSync(conf.out + '/' + name + '.js', content);
 }
@@ -99,7 +117,7 @@ module.exports = function () {
     let files = fs.readdirSync(conf.in);
     for (let file of files) {
         let stat = fs.statSync(conf.in + '/' + file);
-        if (stat.isDirectory() && file !== '_utils') {
+        if (stat.isDirectory()) {
             console.log('打包单个组件：' + file);
             _buildComponent(file);
         }

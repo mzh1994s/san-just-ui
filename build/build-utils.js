@@ -9,7 +9,7 @@ var path = require('path');
 var conf = require('./build-conf');
 
 exports.buildRequirePattern = function (name) {
-    return new RegExp('require\\([\'"]+' + name.replace(/\./g, '\\.') + '[\'"]+\\)', 'g');
+    return new RegExp('require\\([\'"]+' + name.replace(/\./g, '\\.') + '[\'"]+\\);?', 'g');
 };
 
 exports.readFileSync = function (filepath, contentFilter) {
@@ -28,7 +28,7 @@ exports.eval = function (filepath) {
     let script = global.buildContext.evalCache[filepath];
     if (!script) {
         let content = exports.readFileSync(filepath);
-        script = eval(content);
+        script = eval(content.replace(/(var\s+\S+\s+=\s+)?require\(["']+(\S+)['"]+\);?/g, ''));
         global.buildContext.evalCache[filepath] = script;
     }
     return script;
@@ -44,4 +44,34 @@ exports.getUserDir = function () {
 
 exports.resolveResourceName = function (filepath) {
     return filepath.substring(exports.COMPONENTS_DIR.length + 1).replace(/[-.\\]/g, '_');
+};
+
+exports.arrayContains = function (arr, item, prop) {
+    if (prop) {
+        for (let _item of arr) {
+            if (_item[prop] === item[prop]) {
+                return true;
+            }
+        }
+    } else {
+        for (let _item of arr) {
+            if (_item === item) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
+
+exports.arrayMerge = function (arr1, arr2, prop) {
+    let arr = [];
+    for (let item of arr1) {
+        arr.push(item);
+    }
+    for (let item of arr2) {
+        if (!exports.arrayContains(arr, item, prop)) {
+            arr.push(item);
+        }
+    }
+    return arr;
 };

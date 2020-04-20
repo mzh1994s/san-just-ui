@@ -1,66 +1,105 @@
 (function (root) {
-
-    // 组件资源引用区域
-    var _require_Dialog_Dialog_html = '<div class="ju-dialog" style="{{cStyle}}"><div class="ju-dialog__header"><slot name="header">{{title}}<i on-click="onClose()">关闭</i></slot></div><div class="ju-dialog__body"><slot></slot></div><div class="ju-dialog__footer"><slot name="footer"></slot></div></div>';
-	var _require_utils_js = {
-		each : function (list, callback) {
-	        var length = list.length;
-	        for (var i = 0; i < length; i++) {
-	            callback(i, list[i]);
-	        }
-	    }
-	};
-	var _require_Dialog_Dialog_animation_fade_js = {
-		enter : function (component) {
-	        // 添加遮罩
-	        document.body.appendChild(component.shadeEl);
-	        // 重新添加会将位置排在最后
-	        component.data.set('cStyle.opacity', 0);
-	        component.data.set('cStyle.display', 'block');
-	        component.data.set('cStyle.transition', 'opacity 1s');
-	        document.body.appendChild(component.el);
-	        setTimeout(function () {
-	            component.data.set('cStyle.opacity', 1);
-	        }, 100);
-	    },
-		leave : function (component) {
-	        // 删除遮罩
-	        document.body.removeChild(component.shadeEl);
-	        component.data.set('cStyle.opacity', 0);
-	        setTimeout(function () {
-	            component.data.set('cStyle.display', 'none');
-	        }, 1000);
-	    }
-	};
-
     // 组件定义区域
     function _component(san) {
-        var utils = _require_utils_js;
-		var animationFade = _require_Dialog_Dialog_animation_fade_js;
+        // ---------------工具
+		/**
+		 * 合并两个对象
+		 * @param object1
+		 * @param object2
+		 * @returns {{}}
+		 */
+		function mergeObject(object1, object2) {
+		    var merged = {};
+		    if (typeof object1 === "object") {
+		        for (var key in object1) {
+		            if (object1.hasOwnProperty(key)) {
+		                merged[key] = object1[key];
+		            }
+		        }
+		    }
+		    if (typeof object2 === "object") {
+		        for (var key2 in object2) {
+		            if (object2.hasOwnProperty(key2)) {
+		                merged[key2] = object2[key2];
+		            }
+		        }
+		    }
+		    return merged;
+		}
+		/**
+		 * 从el中移除元素
+		 * @param el
+		 * @param child
+		 */
+		function removeElChild(el, child) {
+		    try {
+		        el.removeChild(child);
+		    } catch (e) {
+		        // 屏蔽错误消息
+		        // 当使用s-if时会自动卸载dom，手动卸载会报错
+		    }
+		}
+		
+		// ---------------动画
+		/**
+		 * 淡入淡出
+		 * 创建日期：2020/4/14
+		 * @author mzhong
+		 */
+		var animationFade = {
+		    enter: function (component, done) {
+		        // 添加遮罩
+		        document.body.appendChild(component.shadeEl);
+		        // 重新添加会将位置排在最后
+		        component.data.set('aStyle.opacity', 0);
+		        component.data.set('aStyle.transform', 'translate(0, -100px)');
+		        component.data.set('aStyle.transition', 'all 500ms ease');
+		        component.data.set('aStyle.display', 'block');
+		        document.body.appendChild(component.el);
+		        setTimeout(function () {
+		            component.data.set('aStyle.transform', 'translate(0, 0)');
+		            component.data.set('aStyle.opacity', 1);
+		            done(component);
+		        }, 100);
+		    },
+		    leave: function (component, done) {
+		        // 删除遮罩
+		        removeElChild(document.body, component.shadeEl);
+		        component.data.set('aStyle.opacity', 0);
+		        component.data.set('aStyle.transform', 'translate(0, -100px)');
+		        setTimeout(function () {
+		            component.data.set('aStyle.display', 'none');
+		            done(component);
+		        }, 500);
+		    }
+		};
 		var animation = {
 		    // 飞入
 		    fade: animationFade
 		};
+		
+		// ---------------组件
 		/**
 		 * 对话框组件
 		 * 创建日期：2020/1/23
 		 * @author mzhong
 		 */
-		return san.defineComponent({
-		    template: _require_Dialog_Dialog_html,
+		var Dialog = san.defineComponent({
+		    template: '<div class="ju-dialog" style="{{cStyle}}"><div class="ju-dialog__header"><slot name="header">{{title}}<i on-click="onClose()"></i></slot></div><div class="ju-dialog__body"><slot></slot></div><div class="ju-dialog__footer"><slot name="footer"></slot></div></div>',
 		    initData: function () {
 		        return {
 		            visible: false,
 		            width: '50%',
-		            height: '50%',
-		            animation: 'fade'
+		            height: '200px',
+		            animation: 'fade',
+		            icon: {
+		                name: window.JU.config.iconName || 'fa'
+		            }
 		        };
 		    },
 		    created: function () {
 		        this.shadeEl = document.createElement('div');
 		        this.shadeEl.className = 'ju-dialog__shade';
-		        utils.each([1, 2, 3], function (i, item) {
-		        });
 		    },
 		    attached: function () {
 		        this._attachedVisibleSetting();
@@ -69,35 +108,55 @@
 		        this._detachedVisibleSetting();
 		    },
 		    _attachedVisibleSetting: function () {
+		        // 将el加载到body下
 		        document.body.appendChild(this.el);
+		        // 监听visible变化执行动画
+		        // 动画组件中操作cStyle和cClassName来操作动画
 		        this.watch('visible', function (visible) {
-		            var currentAnimation = animation[this.data.get('animation')];
-		            if (visible) {
-		                currentAnimation.enter(this);
-		            } else {
-		                currentAnimation.leave(this);
-		            }
+		            this._startAnimation(visible);
 		        });
+		        // 如果默认显示，则触发动画
+		        if (this.data.get('visible')) {
+		            this._startAnimation(true);
+		        }
+		    },
+		    _startAnimation: function (visible, done) {
+		        var _this = this;
+		        var currentAnimation = animation[this.data.get('animation')];
+		        if (visible) {
+		            currentAnimation.enter(this, function () {
+		                _this.fire('open');
+		                done && done();
+		            });
+		        } else {
+		            currentAnimation.leave(this, function () {
+		                _this.fire('close');
+		                done && done();
+		            });
+		        }
 		    },
 		    _detachedVisibleSetting: function () {
-		        try {
-		            document.body.removeChild(this.el);
-		        } catch (e) {
-		        }
+		        // 当作为子组件使用时，父组件卸载的时候不会自动卸载，需要手动卸载
+		        removeElChild(document.body, this.el);
+		        removeElChild(document.body, this.shadeEl);
+		        this.shadeEl = null;
 		    },
 		    onClose: function () {
 		        this.data.set('visible', false);
 		    },
 		    computed: {
 		        cStyle: function () {
-		            var visible = this.data.get('asyncVisible');
-		            return {
+		            var cStyle = {
+		                top: document.documentElement.clientHeight / 5 + 'px',
 		                width: this.data.get('width'),
 		                height: this.data.get('height')
-		            }
+		            };
+		            // 合并aStyle
+		            return mergeObject(cStyle, this.data.get('aStyle'));
 		        }
 		    }
 		});
+		return Dialog;
     }
 
     // Export
@@ -106,7 +165,7 @@
     } else if (typeof define === 'function' && define.amd) {
         define(['san'], _component);
     } else {
-        root.JU = root.JU || {};
-        root.JU.Dialog =  _component(root.san);
+        root.justUI = root.justUI || {};
+        root.justUI.Dialog =  _component(root.san);
     }
 })(this);
