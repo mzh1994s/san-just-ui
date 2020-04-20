@@ -7,6 +7,17 @@
     display: none;
 }
 
+.ju-dialog-shade {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: .5;
+    filter: alpha(opacity=50);
+    background: #000;
+}
+
 .ju-dialog-scroll-el {
     position: absolute;
     top: 0;
@@ -27,16 +38,26 @@
     background: #ffffff;
 }
 
-.ju-dialog-shade {
-    position: fixed;
+.ju-dialog-close {
+    position: absolute;
     top: 0;
     right: 0;
-    bottom: 0;
-    left: 0;
-    opacity: .5;
-    filter: alpha(opacity=50);
-    background: #000;
+    left: auto;
+    width: 55px;
+    text-align: center;
+    line-height: 55px;
+    cursor: pointer;
+    color: #60606f;
 }
+
+.ju-dialog-close .fa {
+    line-height: 1;
+}
+
+.ju-dialog-close:hover {
+    color: #0A0C1E;
+}
+
 
 .ju-dialog-header,
 .ju-dialog-footer {
@@ -51,23 +72,6 @@
 
 .ju-dialog-header {
     border-bottom: 1px solid #f0f0f0;
-}
-
-.ju-dialog-header .fa-close {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: auto;
-    width: 55px;
-    text-align: center;
-    line-height: 55px;
-    cursor: pointer;
-    color: #60606f;
-}
-
-.ju-dialog-header .fa-close:hover {
-    color: #0A0C1E;
 }
 
 .ju-dialog-footer {

@@ -14,9 +14,21 @@
 
 <script type="text/html" id="template">
     <div>
-        <button on-click="openDialog('dialog1')">打开1</button>
-        <button on-click="openDialog('dialog2')">打开2</button>
-        <ui-dialog title="测试test1" visible="{=dialog1=}">
+        <button on-click="openDialog('dialog1')">常规</button>
+        <button on-click="openDialog('dialog2')">超长内容</button>
+        <button on-click="openDialog('dialog3')">隐藏页脚</button>
+        <button on-click="openDialog('dialog4')">对话框嵌套</button>
+        <ui-dialog s-ref="dialog1" title="标题" visible="{=dialog1=}">
+            <div>
+                <p>内容</p><p>内容</p><p>内容</p><p>内容</p>
+                <p>内容</p><p>内容</p><p>内容</p><p>内容</p>
+            </div>
+            <div slot="footer" style="text-align: right;">
+                <button>取消</button>
+                <button>取消</button>
+            </div>
+        </ui-dialog>
+        <ui-dialog s-ref="dialog2" title="标题" visible="{=dialog2=}">
             <div>
                 <p>内容</p><p>内容</p><p>内容</p><p>内容</p>
                 <p>内容</p><p>内容</p><p>内容</p><p>内容</p>
@@ -32,8 +44,15 @@
                 <button>取消</button>
             </div>
         </ui-dialog>
-        <ui-dialog title="测试test2" visible s-if="dialog2" on-close="closeDialog('dialog2')"
+        <ui-dialog s-ref="dialog3" title="隐藏页脚" visible footerHide s-if="dialog3" on-close="closeDialog('dialog3')"
                    style="width: 600px;"></ui-dialog>
+
+        <ui-dialog s-ref="dialog4" title="对话框4" visible s-if="dialog4" on-close="closeDialog('dialog4')">
+            <button on-click="openDialog('dialog5')">打开对话框5</button>
+        </ui-dialog>
+        <ui-dialog s-ref="dialog5" s-ref="dialog5" title="对话框5" visible s-if="dialog5" on-close="closeDialog('dialog5')">
+            <button on-click="topDialog('dialog4')">回到对话框4</button>
+        </ui-dialog>
     </div>
 </script>
 
@@ -56,9 +75,16 @@
         },
         openDialog: function (dialog) {
             this.data.set(dialog, true);
+            var _this = this;
+            this.nextTick(function () {
+                _this.topDialog(dialog);
+            });
         },
         closeDialog: function (dialog) {
             this.data.set(dialog, false);
+        },
+        topDialog: function (dialog) {
+            this.ref(dialog).setTop();
         }
     });
     new Demo().attach(document.getElementById('app'));

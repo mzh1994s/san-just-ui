@@ -62,7 +62,7 @@
 		
 		// ---------------动画
 		/**
-		 * 淡入淡出
+		 * 无动画
 		 * 创建日期：2020/4/14
 		 * @author mzhong
 		 */
@@ -133,14 +133,17 @@
 		 * @author mzhong
 		 */
 		var Dialog = san.defineComponent({
-		    template: '<div class="ju-dialog" style="{{cStyle}}"><div class="ju-dialog-header"><slot name="header">{{title}}</slot><i class="fa fa-close" on-click="onClose()"></i></div><div class="ju-dialog-body"><slot>{{content}}</slot></div><div class="ju-dialog-footer"><slot name="footer"></slot></div></div>',
+		    template: '<div class="ju-dialog" style="{{cStyle}}"><div s-if="!headerHide" class="ju-dialog-header"><slot name="header">{{title}}</slot></div><div class="ju-dialog-body"><slot>{{content}}</slot></div><div s-if="!footerHide" class="ju-dialog-footer"><slot name="footer"></slot></div><div s-if="closeable" class="ju-dialog-close"><i class="fa fa-close" on-click="onClose()"></i></div></div>',
 		    initData: function () {
 		        return {
 		            visible: false, // 是否可见
 		            width: '50%', // 宽度
 		            animation: 'fade', // 动画
 		            shade: true, // 遮罩
-		            aStyle: {} // 动画样式
+		            aStyle: {}, // 动画样式
+		            footerHide: false, // 隐藏页脚
+		            headerHide: false, // 隐藏页头
+		            closeable: true // 可关闭
 		        };
 		    },
 		    attached: function () {
@@ -203,6 +206,9 @@
 		        removeElChild(document.body, this.wrapEl);
 		        this.wrapEl = null;
 		        this.shadeEl = null;
+		    },
+		    setTop: function () {
+		        appendElChild(document.body, this.wrapEl);
 		    },
 		    onClose: function () {
 		        this.data.set('visible', false);

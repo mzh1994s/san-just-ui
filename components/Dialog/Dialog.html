@@ -1,12 +1,14 @@
 <div class="ju-dialog" style="{{cStyle}}">
-    <div class="ju-dialog-header">
+    <div s-if="!headerHide" class="ju-dialog-header">
         <slot name="header">{{title}}</slot>
-        <i class="fa fa-close" on-click="onClose()"></i>
     </div>
     <div class="ju-dialog-body">
         <slot>{{content}}</slot>
     </div>
-    <div class="ju-dialog-footer">
+    <div s-if="!footerHide" class="ju-dialog-footer">
         <slot name="footer"></slot>
+    </div>
+    <div s-if="closeable" class="ju-dialog-close">
+        <i class="fa fa-close" on-click="onClose()"></i>
     </div>
 </div>
