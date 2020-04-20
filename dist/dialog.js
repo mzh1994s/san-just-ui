@@ -85,16 +85,13 @@
 		 * @author mzhong
 		 */
 		var Dialog = san.defineComponent({
-		    template: '<div class="ju-dialog" style="{{cStyle}}"><div class="ju-dialog__header"><slot name="header">{{title}}<i on-click="onClose()"></i></slot></div><div class="ju-dialog__body"><slot></slot></div><div class="ju-dialog__footer"><slot name="footer"></slot></div></div>',
+		    template: '<div class="ju-dialog" style="{{cStyle}}"><div class="ju-dialog__header"><slot name="header">{{title}}<i class="fa fa-close" on-click="onClose()"></i></slot></div><div class="ju-dialog__body"><slot></slot></div><div class="ju-dialog__footer"><slot name="footer"></slot></div></div>',
 		    initData: function () {
 		        return {
 		            visible: false,
 		            width: '50%',
 		            height: '200px',
-		            animation: 'fade',
-		            icon: {
-		                name: window.JU.config.iconName || 'fa'
-		            }
+		            animation: 'fade'
 		        };
 		    },
 		    created: function () {

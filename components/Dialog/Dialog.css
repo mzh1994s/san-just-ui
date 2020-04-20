@@ -23,5 +23,25 @@
 }
 
 .ju-dialog__header {
-    padding: 20px 20px 10px;
+    padding: 16px 22px;
+    line-height: 22px;
+    border-bottom: 1px solid #f0f0f0;
+    position: relative;
+}
+
+.ju-dialog__header .fa-close {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: auto;
+    width: 50px;
+    text-align: center;
+    line-height: 50px;
+    cursor: pointer;
+    color: #60606f;
+}
+
+.ju-dialog__header .fa-close:hover {
+    color: #0A0C1E;
 }
