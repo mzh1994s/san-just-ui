@@ -16,7 +16,22 @@
     <div>
         <button on-click="openDialog('dialog1')">打开1</button>
         <button on-click="openDialog('dialog2')">打开2</button>
-        <ui-dialog title="测试test1" visible="{=dialog1=}"></ui-dialog>
+        <ui-dialog title="测试test1" visible="{=dialog1=}">
+            <div>
+                <p>内容</p><p>内容</p><p>内容</p><p>内容</p>
+                <p>内容</p><p>内容</p><p>内容</p><p>内容</p>
+                <p>内容</p><p>内容</p><p>内容</p><p>内容</p>
+                <p>内容</p><p>内容</p><p>内容</p><p>内容</p>
+                <p>内容</p><p>内容</p><p>内容</p><p>内容</p>
+                <p>内容</p><p>内容</p><p>内容</p><p>内容</p>
+                <p>内容</p><p>内容</p><p>内容</p><p>内容</p>
+                <p>内容</p><p>内容</p><p>内容</p><p>内容</p>
+            </div>
+            <div slot="footer" style="text-align: right;">
+                <button>取消</button>
+                <button>取消</button>
+            </div>
+        </ui-dialog>
         <ui-dialog title="测试test2" visible s-if="dialog2" on-close="closeDialog('dialog2')"
                    style="width: 600px;"></ui-dialog>
     </div>
@@ -27,6 +42,17 @@
         template: document.getElementById('template').innerHTML,
         components: {
             'ui-dialog': justUI.Dialog
+        },
+        initData: function () {
+            return {
+                cnt: 1
+            };
+        },
+        attached: function () {
+            var _this = this;
+            setInterval(function () {
+                _this.data.set('cnt', _this.data.get('cnt') + 1);
+            }, 1000, 1000);
         },
         openDialog: function (dialog) {
             this.data.set(dialog, true);

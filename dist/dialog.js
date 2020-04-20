@@ -10,14 +10,14 @@
 		 */
 		function mergeObject(object1, object2) {
 		    var merged = {};
-		    if (typeof object1 === "object") {
+		    if (object1 && typeof object1 === "object") {
 		        for (var key in object1) {
 		            if (object1.hasOwnProperty(key)) {
 		                merged[key] = object1[key];
 		            }
 		        }
 		    }
-		    if (typeof object2 === "object") {
+		    if (object2 && typeof object2 === "object") {
 		        for (var key2 in object2) {
 		            if (object2.hasOwnProperty(key2)) {
 		                merged[key2] = object2[key2];
@@ -25,6 +25,18 @@
 		        }
 		    }
 		    return merged;
+		}
+		/**
+		 * 添加元素到el中
+		 * @param el
+		 * @param child
+		 */
+		function appendElChild(el, child) {
+		    try {
+		        el.appendChild(child);
+		    } catch (e) {
+		        // 屏蔽错误消息
+		    }
 		}
 		/**
 		 * 从el中移除元素
@@ -39,6 +51,14 @@
 		        // 当使用s-if时会自动卸载dom，手动卸载会报错
 		    }
 		}
+		/**
+		 * 判断当前浏览器是否支持动画
+		 * 创建日期：2020/4/20
+		 * @author mzhong
+		 */
+		function isCss3AnimationSupport() {
+		    return 'transition' in document.body.style;
+		}
 		
 		// ---------------动画
 		/**
@@ -46,31 +66,59 @@
 		 * 创建日期：2020/4/14
 		 * @author mzhong
 		 */
-		var animationFade = {
+		var animationNone = {
 		    enter: function (component, done) {
-		        // 添加遮罩
-		        document.body.appendChild(component.shadeEl);
-		        // 重新添加会将位置排在最后
-		        component.data.set('aStyle.opacity', 0);
-		        component.data.set('aStyle.transform', 'translate(0, -100px)');
-		        component.data.set('aStyle.transition', 'all 500ms ease');
-		        component.data.set('aStyle.display', 'block');
-		        document.body.appendChild(component.el);
-		        setTimeout(function () {
-		            component.data.set('aStyle.transform', 'translate(0, 0)');
-		            component.data.set('aStyle.opacity', 1);
-		            done(component);
-		        }, 100);
+		        // 显示遮罩
+		        if (component.data.get('shade')) {
+		            component.shadeEl.style.display = 'block';
+		        }
+		        component.wrapEl.style.display = 'block';
+		        // 激活窗口（排到最后去，显示在最上面）
+		        appendElChild(document.body, component.wrapEl);
+		        done(component);
 		    },
 		    leave: function (component, done) {
 		        // 删除遮罩
-		        removeElChild(document.body, component.shadeEl);
-		        component.data.set('aStyle.opacity', 0);
-		        component.data.set('aStyle.transform', 'translate(0, -100px)');
-		        setTimeout(function () {
-		            component.data.set('aStyle.display', 'none');
-		            done(component);
-		        }, 500);
+		        component.shadeEl.style.display = 'none';
+		        // 隐藏对话框
+		        component.wrapEl.style.display = 'none';
+		        done(component);
+		    }
+		};
+		/**
+		 * 淡入淡出
+		 * 创建日期：2020/4/14
+		 * @author mzhong
+		 */
+		var animationFade = {
+		    css3: {
+		        enter: function (component, done) {
+		            component.data.set('aStyle.opacity', 0);
+		            component.data.set('aStyle.transform', 'translate(0, -100px)');
+		            component.data.set('aStyle.transition', 'all 500ms ease');
+		            if (component.data.get('shade')) {
+		                component.shadeEl.style.display = 'block';
+		            }
+		            // 显示对话框容器
+		            component.wrapEl.style.display = 'block';
+		            // 激活窗口（排到最后去，显示在最上面）
+		            appendElChild(document.body, component.wrapEl);
+		            setTimeout(function () {
+		                component.data.set('aStyle.transform', 'translate(0, 0)');
+		                component.data.set('aStyle.opacity', 1);
+		                done(component);
+		            }, 100);
+		        },
+		        leave: function (component, done) {
+		            // 删除遮罩
+		            component.shadeEl.style.display = 'none';
+		            component.data.set('aStyle.opacity', 0);
+		            component.data.set('aStyle.transform', 'translate(0, -100px)');
+		            setTimeout(function () {
+		                component.wrapEl.style.display = 'none';
+		                done(component);
+		            }, 500);
+		        }
 		    }
 		};
 		var animation = {
@@ -85,28 +133,36 @@
 		 * @author mzhong
 		 */
 		var Dialog = san.defineComponent({
-		    template: '<div class="ju-dialog" style="{{cStyle}}"><div class="ju-dialog__header"><slot name="header">{{title}}<i class="fa fa-close" on-click="onClose()"></i></slot></div><div class="ju-dialog__body"><slot></slot></div><div class="ju-dialog__footer"><slot name="footer"></slot></div></div>',
+		    template: '<div class="ju-dialog" style="{{cStyle}}"><div class="ju-dialog-header"><slot name="header">{{title}}</slot><i class="fa fa-close" on-click="onClose()"></i></div><div class="ju-dialog-body"><slot>{{content}}</slot></div><div class="ju-dialog-footer"><slot name="footer"></slot></div></div>',
 		    initData: function () {
 		        return {
-		            visible: false,
-		            width: '50%',
-		            height: '200px',
-		            animation: 'fade'
+		            visible: false, // 是否可见
+		            width: '50%', // 宽度
+		            animation: 'fade', // 动画
+		            shade: true, // 遮罩
+		            aStyle: {} // 动画样式
 		        };
 		    },
-		    created: function () {
-		        this.shadeEl = document.createElement('div');
-		        this.shadeEl.className = 'ju-dialog__shade';
-		    },
 		    attached: function () {
+		        // 创建外围dom
+		        this.wrapEl = document.createElement('div');
+		        this.wrapEl.className = 'ju-dialog-wrap';
+		        // 创建遮罩dom
+		        this.shadeEl = document.createElement('div');
+		        this.shadeEl.className = 'ju-dialog-shade';
+		        this.wrapEl.appendChild(this.shadeEl);
+		        // 创建滚动层
+		        this.scrollEl = document.createElement('div');
+		        this.scrollEl.className = 'ju-dialog-scroll-el';
+		        this.wrapEl.appendChild(this.scrollEl);
+		        // 将el添加到可滚动区域
+		        this.scrollEl.appendChild(this.el);
 		        this._attachedVisibleSetting();
 		    },
 		    detached: function () {
 		        this._detachedVisibleSetting();
 		    },
 		    _attachedVisibleSetting: function () {
-		        // 将el加载到body下
-		        document.body.appendChild(this.el);
 		        // 监听visible变化执行动画
 		        // 动画组件中操作cStyle和cClassName来操作动画
 		        this.watch('visible', function (visible) {
@@ -119,7 +175,16 @@
 		    },
 		    _startAnimation: function (visible, done) {
 		        var _this = this;
-		        var currentAnimation = animation[this.data.get('animation')];
+		        var currentAnimationGroup = animation[this.data.get('animation')];
+		        // 无动画
+		        var currentAnimation = animationNone;
+		        if (currentAnimationGroup) {
+		            if (isCss3AnimationSupport() && currentAnimationGroup.css3) {
+		                currentAnimation = currentAnimationGroup.css3;
+		            } else if (currentAnimationGroup.js) {
+		                currentAnimation = currentAnimationGroup.js;
+		            }
+		        }
 		        if (visible) {
 		            currentAnimation.enter(this, function () {
 		                _this.fire('open');
@@ -134,8 +199,9 @@
 		    },
 		    _detachedVisibleSetting: function () {
 		        // 当作为子组件使用时，父组件卸载的时候不会自动卸载，需要手动卸载
-		        removeElChild(document.body, this.el);
 		        removeElChild(document.body, this.shadeEl);
+		        removeElChild(document.body, this.wrapEl);
+		        this.wrapEl = null;
 		        this.shadeEl = null;
 		    },
 		    onClose: function () {

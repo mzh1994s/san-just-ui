@@ -1,5 +1,23 @@
-.ju-dialog {
+.ju-dialog-wrap {
     position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: none;
+}
+
+.ju-dialog-scroll-el {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: auto;
+}
+
+.ju-dialog {
+    position: absolute;
     right: 0;
     left: 0;
     margin: auto;
@@ -7,11 +25,9 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
     box-sizing: border-box;
     background: #ffffff;
-    opacity: 0;
-    transition: opacity 1s;
 }
 
-.ju-dialog__shade {
+.ju-dialog-shade {
     position: fixed;
     top: 0;
     right: 0;
@@ -22,26 +38,38 @@
     background: #000;
 }
 
-.ju-dialog__header {
-    padding: 16px 22px;
-    line-height: 22px;
-    border-bottom: 1px solid #f0f0f0;
+.ju-dialog-header,
+.ju-dialog-footer {
+    padding: 16px 24px;
     position: relative;
 }
 
-.ju-dialog__header .fa-close {
+.ju-dialog-body {
+    padding: 24px;
+    position: relative;
+}
+
+.ju-dialog-header {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.ju-dialog-header .fa-close {
     position: absolute;
     top: 0;
     bottom: 0;
     right: 0;
     left: auto;
-    width: 50px;
+    width: 55px;
     text-align: center;
-    line-height: 50px;
+    line-height: 55px;
     cursor: pointer;
     color: #60606f;
 }
 
-.ju-dialog__header .fa-close:hover {
+.ju-dialog-header .fa-close:hover {
     color: #0A0C1E;
+}
+
+.ju-dialog-footer {
+    border-top: 1px solid #f0f0f0;
 }

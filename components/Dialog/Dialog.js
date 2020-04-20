@@ -1,8 +1,11 @@
 // ---------------工具
 require('../_utils/mergeObject');
+require('../_utils/appendElChild');
 require('../_utils/removeElChild');
+require('../_utils/isCss3AnimationSupport');
 
 // ---------------动画
+require('./Dialog-animation-none');
 require('./Dialog-animation-fade');
 var animation = {
     // 飞入
@@ -19,25 +22,33 @@ var Dialog = san.defineComponent({
     template: require('Dialog.html'),
     initData: function () {
         return {
-            visible: false,
-            width: '50%',
-            height: '200px',
-            animation: 'fade'
+            visible: false, // 是否可见
+            width: '50%', // 宽度
+            animation: 'fade', // 动画
+            shade: true, // 遮罩
+            aStyle: {} // 动画样式
         };
     },
-    created: function () {
-        this.shadeEl = document.createElement('div');
-        this.shadeEl.className = 'ju-dialog__shade';
-    },
     attached: function () {
+        // 创建外围dom
+        this.wrapEl = document.createElement('div');
+        this.wrapEl.className = 'ju-dialog-wrap';
+        // 创建遮罩dom
+        this.shadeEl = document.createElement('div');
+        this.shadeEl.className = 'ju-dialog-shade';
+        this.wrapEl.appendChild(this.shadeEl);
+        // 创建滚动层
+        this.scrollEl = document.createElement('div');
+        this.scrollEl.className = 'ju-dialog-scroll-el';
+        this.wrapEl.appendChild(this.scrollEl);
+        // 将el添加到可滚动区域
+        this.scrollEl.appendChild(this.el);
         this._attachedVisibleSetting();
     },
     detached: function () {
         this._detachedVisibleSetting();
     },
     _attachedVisibleSetting: function () {
-        // 将el加载到body下
-        document.body.appendChild(this.el);
         // 监听visible变化执行动画
         // 动画组件中操作cStyle和cClassName来操作动画
         this.watch('visible', function (visible) {
@@ -50,7 +61,16 @@ var Dialog = san.defineComponent({
     },
     _startAnimation: function (visible, done) {
         var _this = this;
-        var currentAnimation = animation[this.data.get('animation')];
+        var currentAnimationGroup = animation[this.data.get('animation')];
+        // 无动画
+        var currentAnimation = animationNone;
+        if (currentAnimationGroup) {
+            if (isCss3AnimationSupport() && currentAnimationGroup.css3) {
+                currentAnimation = currentAnimationGroup.css3;
+            } else if (currentAnimationGroup.js) {
+                currentAnimation = currentAnimationGroup.js;
+            }
+        }
         if (visible) {
             currentAnimation.enter(this, function () {
                 _this.fire('open');
@@ -65,8 +85,9 @@ var Dialog = san.defineComponent({
     },
     _detachedVisibleSetting: function () {
         // 当作为子组件使用时，父组件卸载的时候不会自动卸载，需要手动卸载
-        removeElChild(document.body, this.el);
         removeElChild(document.body, this.shadeEl);
+        removeElChild(document.body, this.wrapEl);
+        this.wrapEl = null;
         this.shadeEl = null;
     },
     onClose: function () {

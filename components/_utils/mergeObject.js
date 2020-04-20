@@ -6,14 +6,14 @@
  */
 function mergeObject(object1, object2) {
     var merged = {};
-    if (typeof object1 === "object") {
+    if (object1 && typeof object1 === "object") {
         for (var key in object1) {
             if (object1.hasOwnProperty(key)) {
                 merged[key] = object1[key];
             }
         }
     }
-    if (typeof object2 === "object") {
+    if (object2 && typeof object2 === "object") {
         for (var key2 in object2) {
             if (object2.hasOwnProperty(key2)) {
                 merged[key2] = object2[key2];
